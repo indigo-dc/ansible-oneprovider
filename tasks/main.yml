@@ -1,0 +1,24 @@
+---
+# tasks file for oneprovider
+
+- include: tags_processing.yml
+
+- include: requierements_check.yml
+  tags: oneprovider:requirements_check
+  when: oneprovider_requirements_check.skipped is undefined
+
+# Ubuntu tasks
+- include: ubuntu/ubuntu-main.yml
+  when: (ansible_distribution  == "Ubuntu")
+
+# TODO: implement tasks for CentOS 7
+# # CentOS tasks
+# - include: centos/centos-main.yml
+#   when: ansible_distribution  == "CentOS"
+
+# TODO: implement tasks for Fedora 25
+# # Fedora tasks
+# - include: fedora/fedora-main.yml
+#   when: ansible_distribution  == "Fedora"
+
+

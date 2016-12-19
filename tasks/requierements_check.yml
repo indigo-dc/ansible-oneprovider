@@ -1,0 +1,60 @@
+---
+# tasks file checking minimal requirements for onedata.oneprovider
+
+- name: "Check Minimal Hardware Requirements"
+  assert:
+    that:
+      - ansible_machine == "x86_64" 
+      - ansible_memtotal_mb|int > 1000 
+      - ansible_processor_count|int > 1
+    msg: "Minimal hardware requirements are 2VPCU and 1GB of RAM"
+
+- name: "Check Hostname and FQDN"
+  assert:
+    that:
+      - not ({{ item }} is undefined or {{ item }} is none or {{ item }}|trim == '')
+    msg: "Hostname or FQDN is not configured, discovered value for {{ item }} was '{{ hostvars[inventory_hostname][ item ] }}'"
+  with_items:
+    - ansible_hostname
+    - ansible_fqdn
+    - ansible_domain
+
+- name: Get machine public IP
+  ipify_facts: # saved in {{ ipify_public_ip }}
+
+# TODO: Change to use "{{ lookup('dig', ansible_fqdn )}}"
+- name: Check if FQDN resolves to public ip
+  shell: "dig +short {{ ansible_fqdn }}"
+  register: public_ip_for_fqdn
+
+- name: Check if /etc/hosts if properly sef for public IP and FQDN
+  assert:
+    that:
+      - "ipify_public_ip == public_ip_for_fqdn.stdout"
+
+# TODO: check if installation of 'nc' command is really needed on moder systems
+#- name: Installing netcat
+#  apt:
+#    name: "netcat"
+#    state: present
+#    force: yes
+    
+# TODO: add checking UDP port 53, by default ansible only handles TCP ports
+- block:
+  - name: "Check if all needed ports are free"
+    wait_for:
+      port: "{{ item }}"
+      timeout: 2
+      state: stopped
+    with_items: "{{ oneprovider_ports }}"
+  - name: "Start listening on all needed ports"
+    shell: "nc -l {{ item }}"
+    async: 60
+    poll: 0
+    with_items: "{{ oneprovider_ports }}"
+  - name: "Try to access each port to see if its open"
+    become: no # this action run in a local pc from which you run ansible, you don't want to run it as a root
+    local_action: wait_for host="{{ ipify_public_ip }}" port="{{ item }}" state=started timeout=10
+    with_items: "{{ oneprovider_ports }}"
+    #alternatively use: shell nc -w 2 -v {{ ipify_public_ip }} {{ item }} </dev/null;
+

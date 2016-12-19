@@ -1,0 +1,50 @@
+---
+
+# role stages
+oneprovider_requirements_check: false
+oneprovider_install: false
+oneprovider_configure: false
+oneprovider_uninstall: false
+oneprovider_restart: false
+oneprovider_stop: false
+
+# TODO name the variables in hash table consistent with variables above
+oneprovider: {
+  "install" : "{{ oneprovider_install }}" ,
+  "configure" : "{{ oneprovider_configure }}",
+  "uninstall" : "{{ oneprovider_uninstall }}",
+  "restart" : "{{ oneprovider_restart }}",
+  "stop" : "{{ oneprovider_stop }}",
+  "requirements_check": "{{ oneprovider_requirements_check }}"
+}
+
+oneprovider_ansible_manual_config_present: "{{ oneprovider.values()|sum()}}"
+
+# Those port and UDP port 53 needs to be open for oneprovider to work properly 
+oneprovider_ports: [ 53, 80, 443, 5555, 5556, 6665, 6666, 7443, 8443, 8876, 8877, 9443 ]
+
+#oneprovider_manual: "{{ oneprovider.items() | sum(attribute=1) }}"
+# defaults file for oneprovider
+oneprovider_name: "{{ ansible_hostname }}"
+
+# oneprovider the default package name
+oneprovider_pkg_name: oneprovider
+onedata_apt_cache_valid_time: 600
+
+onedata_url: http://packages.onedata.org
+# Place to get apt repository key
+apt_key_id: BC7CC544
+apt_key_url: "{{ onedata_url }}/onedata.gpg.key"
+# apt repository key signature
+#apt_key_sig: 
+# Name of the apt repository for docker
+apt_repository: "deb {{ onedata_url }}/apt/{{ ansible_lsb.id|lower }}/{{ ansible_lsb.codename|lower }} {{ ansible_lsb.codename|lower }} main"
+
+#Files
+oneprovider_conf_script: oneprovider_configure.py
+
+## Data directory path for POSIX data storage
+oneprovider_data: /oneprovider_data
+
+# Onezone Oneprovider registers to
+onezone_name: beta.onedata.org

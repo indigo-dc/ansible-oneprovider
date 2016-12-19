@@ -1,0 +1,41 @@
+---
+# install tasks file for onedata.oneprovider for ubuntu 
+
+# Install oneprovider
+- name: Add Onedata repository key
+  apt_key:
+    id: "{{ apt_key_id }}"
+    url: "{{ apt_key_url }}"
+    state: present
+
+- name: Add Onedata repository and update apt cache
+  apt_repository:
+    repo: "{{ apt_repository }}"
+    mode: '644'
+    update_cache: yes
+    state: present  
+
+- name: Install oneprovider package (it's ok for it to fail once)
+  apt:
+    name: "{{ oneprovider_pkg_name }}"
+    state: present
+    force: yes
+    #update_cache: yes
+    #cache_valid_time: "{{ onedata_apt_cache_valid_time }}"
+  register: oneprovider_install
+  until: oneprovider_install.failed is not defined or oneprovider_install.failed == false
+  retries: 4
+  delay: 1
+
+- name: Install Python-Pip package
+  apt:
+    name: "python-pip"
+    state: present
+    #update_cache: yes
+
+- name: Install python packages required to run configuration script
+  pip:
+    name: "{{ item }}"
+  with_items:
+    - requests
+    - pyyaml

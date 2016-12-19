@@ -1,0 +1,51 @@
+---
+# tasks file for onedata.oneprovider for ubuntu 
+
+#this package is required so that 'become' option worked in ansible 2.*
+- name: install setfacl support
+  become: yes
+  apt: pkg=acl
+
+- include: install.yml 
+  tags: oneprovider, oneprovider:install
+  when: (oneprovider_install.skipped is undefined) or
+        (oneprovider_defaults.skipped is undefined)
+
+# Retrieve geolocation data of a host's IP address
+- name: Get IP geolocation data
+  shell: curl -s ipinfo.io 
+  register: ipinfoio_facts
+  tags: oneprovider,oneprovider:configure
+  when: (oneprovider_configure.skipped is undefined) or
+        (oneprovider_defaults.skipped is undefined)
+
+# Create Oneprovder data directory
+- name: "Create data directory {{ oneprovider_data }}"
+  file:
+    path: "{{ oneprovider_data }}"
+    state: directory
+  tags: oneprovider,oneprovider:configure
+  when: (oneprovider_configure.skipped is undefined) or
+        (oneprovider_defaults.skipped is undefined)
+
+- name: Configure oneprovider using Onepanel (this will alwasy be marked as changed)
+  script: "{{ oneprovider_conf_script }}"
+  environment:
+    ONEPANEL_BATCH_MODE: true
+    ONEPROVIDER_CONFIG: "{{ lookup('template', 'single_node.j2') }}"
+  tags: oneprovider,oneprovider:configure
+  when: (oneprovider_configure.skipped is undefined) or
+        (oneprovider_defaults.skipped is undefined)
+
+# Remove Oneprovider data directory
+- name: "Remove data directory {{ oneprovider_data }}"
+  file:
+    path: "{{ oneprovider_data }}"
+    state: absent
+  tags: oneprovider,oneprovider:uninstall
+  when: oneprovider_uninstall.skipped is undefined
+
+- include: uninstall.yml
+  tags: oneprovider:uninstall
+  when: oneprovider_uninstall.skipped is undefined
+

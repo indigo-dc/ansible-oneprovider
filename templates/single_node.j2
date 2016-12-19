@@ -1,0 +1,35 @@
+cluster:
+  domainName: "{{ ansible_domain }}"
+  nodes:
+    n1:
+      hostname: "{{ ansible_hostname }}"
+  managers:
+    mainNode: "n1"
+    nodes:
+      - "n1"
+  workers:
+    nodes:
+      - "n1"
+  databases:
+    nodes:
+      - "n1"
+  storages:
+    NFS:
+      type: "posix"
+      mountPoint: "{{ oneprovider_data }}"
+oneprovider:
+  register: true
+  name: "{{ ansible_fqdn }}"
+  redirectionPoint: "https://{{ ansible_fqdn }}" # OR IP ADDRESS
+  geoLatitude: {{ (ipinfoio_facts.stdout | from_json).loc.split(',')[0] }}
+  geoLongitude: {{ (ipinfoio_facts.stdout | from_json).loc.split(',')[1] }}
+onezone:
+  domainName: "{{ onezone_name }}" # OR IP ADDRESS
+onepanel:
+  users:
+    "admin":
+      password: "password"
+      userRole: "admin"
+    "user":
+      password: "password"
+      userRole: "regular"

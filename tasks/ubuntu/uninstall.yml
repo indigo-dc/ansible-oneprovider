@@ -1,0 +1,55 @@
+---
+# uninstall tasks file for onedata.oneprovider for ubuntu 
+
+- name: Stop all oneprovider Services
+  systemd:
+    daemon_reload: yes
+    name: "{{ item }}"
+    state: stopped
+  with_items:
+    - op-worker
+    - op-panel
+    - cluster-manager
+  ignore_errors: yes
+
+- name: Uninstall oneprovider package
+  apt:
+    name: "{{ item }}"
+    state: absent
+    purge: yes
+    force: yes
+  with_items:
+    - couchbase-server-community
+    - op-worker
+    - op-panel
+    - cluster-manager
+    - oneprovider
+
+- name: Delete config files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /var/lib/op_panel
+    - /usr/lib/op_panel
+    - /usr/lib/op_worker
+    - /var/lib/op_worker
+    - /usr/lib/cluster_manager/
+    - /tmp/op_panel
+    - /tmp/op_worker
+    - /tmp/onedata
+    - /tmp/cluster_manager
+    - /var/lib/cluster_manager
+    - /opt/couchbase # remove all Onedata database
+
+- name: Remove Onedata repository key
+  apt_key:
+    id: "{{ apt_key_id }}"
+    url: "{{ apt_key_url }}"
+    state: absent
+
+# - name: Remve Onedata repository and update apt cache
+#   apt_repository:
+#     repo: "{{ apt_repository }}"
+#     state: absent
+  

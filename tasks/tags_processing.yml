@@ -1,0 +1,190 @@
+---
+# tags processing file for onedata.oneprovider
+
+## Following debug messages are a hack, that allows for detection if
+## tags were supplied to Ansible and for running only specific (default)
+## tasks if no tags were supplied. The default behavior is equivalent with
+## supplying a tag 'oneprovider'
+# Oneprovider
+
+- debug: msg='initial oneprovider.uninstall = {{ oneprovider.uninstall }}, oneprovider_uninstall={{ oneprovider_uninstall }}; oneprovider.restart = {{ oneprovider.restart }}, oneprovider_restart={{ oneprovider_restart }}; oneprovider.install = {{ oneprovider.install }}, oneprovider_install={{ oneprovider_install }}; oneprovider.uninstall = {{ oneprovider.uninstall }}, oneprovider_uninstall={{ oneprovider_uninstall }}; oneprovider.configure = {{ oneprovider.configure }}, oneprovider_configure={{ oneprovider_configure }}'
+  tags: always
+
+- name: Processing Ansible Oneprovider Arguments
+  debug: msg="Arguments passed {{ oneprovider_ansible_manual_config_present }}"
+
+- name: Processing Ansible Oneprovider Tags
+  debug: msg="Processing Ansible Oneprovider Tags"
+  register: tags_not_present
+
+# Oneprovider
+- name: Processing Ansible oneprovider Tag
+  debug: msg="Processing Ansible Oneprovider Default Tags"
+  tags: oneprovider
+  register: oneprovider_defaults
+  when: tags_not_present is undefined
+
+# Oneprovider
+- name: Processing Ansible Default Args
+  debug: msg="Processing Ansible Oneprovider Default Tags"
+  register: oneprovider_defaults
+  when: (tags_not_present is defined) and
+        (oneprovider_ansible_manual_config_present|int == false)
+
+# Check Requirements for Oneprovider
+- name: Processing Ansible Oneprovider oneprovider:requirements_check Tag
+  debug: msg="Processing Ansible Oneprovider Tequirements Check Tags"
+  tags: oneprovider:requirements_check
+  register: oneprovider_requirements_check
+  when: tags_not_present is undefined
+
+# Configure Oneprovider
+- name: Processing Ansible oneprovider:configure Tag
+  debug: msg="Processing Ansible Oneprovider Configure Tags"
+  tags: oneprovider:configure
+  register: oneprovider_configure
+  when: tags_not_present is undefined # then value of the registered value is set to { skipped: true }
+  
+# Install Oneprovider
+- name: Processing Ansible oneprovider:install Tag
+  debug: msg="Processing Ansible Oneprovider Install Tags"
+  tags: oneprovider:install
+  register: oneprovider_install
+  when: tags_not_present is undefined
+
+# Uninstall Oneprovider
+- name: Processing Ansible oneprovider:uninstall Tag
+  debug: msg="Processing Ansible Oneprovider Uninstall Tags"
+  tags: oneprovider:uninstall
+  register: oneprovider_uninstall
+  when: tags_not_present is undefined
+
+# Restart Oneprovider
+- name: Processing Ansible oneprovider:restart Tag
+  debug: msg="Processing Ansible Oneprovider Restart Tags"
+  tags: oneprovider:restart
+  register: oneprovider_restart
+  when: tags_not_present is undefined
+
+# Stop Oneprovider
+- name: Processing Ansible Oneprovider Stop Tags
+  debug: msg="Processing Ansible Oneprovider Stop Tags"
+  tags: oneprovider:stop
+  register: oneprovider_stop
+  when: tags_not_present is undefined
+
+- debug: msg="we gona oneprovider_install"
+  tags: oneprovider, oneprovider:install
+  when: (oneprovider_install.skipped is undefined) or
+        (oneprovider_defaults.skipped is undefined)
+
+- debug: msg="we gona oneprovider_uninstall"
+  tags: oneprovider:uninstall
+  when: oneprovider_uninstall.skipped is undefined
+
+- debug: msg="tags_not_present"
+  when: tags_not_present.skipped is defined
+
+- debug: msg="we gona oneprovider_requirements_check"
+  tags: oneprovider:requirements_check
+  when: oneprovider_requirements_check.skipped is undefined
+
+- debug: msg="we gona oneprovider_configure"
+  tags: oneprovider,oneprovider:configure
+  when: (oneprovider_configure.skipped is undefined) or
+        (oneprovider_defaults.skipped is undefined)
+
+- debug: msg="we gona oneprovider_restart"
+  tags: oneprovider:restart
+  when: oneprovider_restart.skipped is undefined
+
+
+- debug: msg='after oneprovider.install = {{ oneprovider.install }}, oneprovider_install={{ oneprovider_install }}; oneprovider.restart = {{ oneprovider.restart }}, oneprovider_restart={{ oneprovider_restart }}; oneprovider.install = {{ oneprovider.install }}, oneprovider_install={{ oneprovider_install }}; oneprovider.uninstall = {{ oneprovider.uninstall }}, oneprovider_uninstall={{ oneprovider_uninstall }}; oneprovider.configure = {{ oneprovider.configure }}, oneprovider_configure={{ oneprovider_configure }}'
+  tags: always
+
+- name: Processing Ansible Oneprovider Requirements Check Vars
+  set_fact:
+    oneprovider_requirements_check: true
+  tags: oneprovider:requirements_check
+  when: oneprovider_requirements_check.skipped is undefined
+
+- name: Processing Ansible Oneprovider Install Vars
+  set_fact:
+    oneprovider_install: true
+  tags: oneprovider, oneprovider:install
+  when: (oneprovider_install.skipped is undefined) or
+        (oneprovider_defaults.skipped is undefined)
+
+- name: Processing Ansible Oneprovider Configure Vars
+  set_fact:
+    oneprovider_configure: true
+  tags: oneprovider, oneprovider:configure
+  when: (oneprovider_configure.skipped is undefined) or
+        (oneprovider_defaults.skipped is undefined)
+
+- name: Processing Ansible Oneprovider Uninstall Vars
+  set_fact:
+    oneprovider_uninstall: true
+  tags: oneprovider:uninstall
+  when: oneprovider_uninstall.skipped is undefined
+
+- name: Processing Ansible Oneprovider Restart Vars
+  set_fact:
+    oneprovider_restart: true
+  tags: oneprovider:restart
+  when: oneprovider_restart.skipped is undefined
+  changed_when: True
+  notify: "Oneprovider Restart"
+
+- name: Processing Ansible Oneprovider Stop Vars
+  set_fact:
+    oneprovider_stop: true
+  tags: oneprovider:stop
+  when: oneprovider_stop.skipped is undefined
+  changed_when: True
+  notify: "Oneprovider Stop"
+
+# - debug: msg='after oneprovider.install = {{ oneprovider.install }}, oneprovider_install={{ oneprovider_install }}; oneprovider.restart = {{ oneprovider.restart }}, oneprovider_restart={{ oneprovider_restart }}; oneprovider.install = {{ oneprovider.install }}, oneprovider_install={{ oneprovider_install }}; oneprovider.uninstall = {{ oneprovider.uninstall }}, oneprovider_uninstall={{ oneprovider_uninstall }}; oneprovider.configure = {{ oneprovider.configure }}, oneprovider_configure={{ oneprovider_configure }}'
+#   tags: always
+
+- name: Checking For Oneprovider Requirements Check Flag
+  debug: 
+    msg: "we gona oneprovider_requirements_check == True "
+    verbosity: 1
+  tags: oneprovider:requirements_check
+  when: oneprovider_requirements_check == True
+
+- name: Checking For Oneprovider Install Flag
+  debug: 
+    msg: "we gona oneprovider_install == True"
+    verbosity: 1
+  tags: oneprovider, oneprovider:install
+  when: oneprovider_install == True
+
+- name: Checking For Oneprovider Uninstall Flag
+  debug: 
+    msg: "we gona oneprovider_uninstall == True "
+    verbosity: 1
+  tags: oneprovider:uninstall
+  when: oneprovider_uninstall == True
+
+- name: Checking For Oneprovider Configure Flag
+  debug: 
+    msg: "we gona oneprovider_configure == True "
+    verbosity: 1
+  tags: oneprovider,oneprovider:configure
+  when: oneprovider_configure == True
+
+- name: Checking For Oneprovider Restart Flag
+  debug: 
+    msg: "we gona oneprovider_restart == True"
+    verbosity: 1
+  tags: oneprovider:restart
+  when: oneprovider_restart == True
+
+- name: Checking For Oneprovider Stop Flag
+  debug: 
+    msg: "we gona oneprovider_stop == True"
+    verbosity: 1
+  tags: oneprovider:stop 
+  when: oneprovider_stop == True
