@@ -5,20 +5,20 @@
   debug: msg="Restaring Oneprovider"
   tags: oneprovider:restart
   changed_when: True
-  notify: 
-    - op_panel restart 
-    - op_worker restart 
-    - cluster_manager restart 
+  notify:
+    - op_panel restart
+    - op_worker restart
+    - cluster_manager restart
 
-- name: op_panel restart 
+- name: op_panel restart
   tags: oneprovider:restart
   service: name=op_panel state=restarted
 
-- name: op_worker restart 
+- name: op_worker restart
   tags: oneprovider:restart
   service: name=op_worker state=restarted
 
-- name: cluster_manager restart 
+- name: cluster_manager restart
   tags: oneprovider:restart
   service: name=cluster_manager state=restarted
 
@@ -26,19 +26,40 @@
   debug: msg="Stop Oneprovider"
   tags: oneprovider:stop
   changed_when: True
-  notify: 
-    - op_panel stop 
-    - op_worker stop 
-    - cluster_manager stop 
+  notify:
+    - op_panel stop
+    - op_worker stop
+    - cluster_manager stop
 
-- name: op_panel stop 
+- name: op_panel stop
   tags: oneprovider:stop
   service: name=op_panel state=stopped
 
-- name: op_worker stop 
+- name: op_worker stop
   tags: oneprovider:stop
   service: name=op_worker state=stopped
 
-- name: cluster_manager stop 
+- name: cluster_manager stop
   tags: oneprovider:stop
   service: name=cluster_manager state=stopped
+
+- name: Oneprovider Start
+  debug: msg="Start Oneprovider"
+  tags: oneprovider:start
+  changed_when: True
+  notify:
+    - op_panel start
+    - op_worker start
+    - cluster_manager start
+
+- name: op_panel start
+  tags: oneprovider:start
+  service: name=op_panel state=started
+
+- name: op_worker start
+  tags: oneprovider:start
+  service: name=op_worker state=started
+
+- name: cluster_manager start
+  tags: oneprovider:start
+  service: name=cluster_manager state=started

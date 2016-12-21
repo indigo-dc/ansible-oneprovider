@@ -33,5 +33,6 @@
     oneprovider_uninstall: false
     oneprovider_restart: false
     oneprovider_stop: false
+    oneprovider_start: false
   tags: always
 

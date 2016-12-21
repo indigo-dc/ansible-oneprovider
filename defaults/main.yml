@@ -7,14 +7,16 @@ oneprovider_configure: false
 oneprovider_uninstall: false
 oneprovider_restart: false
 oneprovider_stop: false
+oneprovider_start: false
 
 # TODO name the variables in hash table consistent with variables above
 oneprovider: {
   "install" : "{{ oneprovider_install }}" ,
   "configure" : "{{ oneprovider_configure }}",
   "uninstall" : "{{ oneprovider_uninstall }}",
-  "restart" : "{{ oneprovider_restart }}",
+  "restart" : "{{    oneprovider_restart }}",
   "stop" : "{{ oneprovider_stop }}",
+  "start" : "{{ oneprovider_start }}",
   "requirements_check": "{{ oneprovider_requirements_check }}"
 }
 

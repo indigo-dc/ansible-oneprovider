@@ -73,6 +73,13 @@
   register: oneprovider_stop
   when: tags_not_present is undefined
 
+# Start Oneprovider
+- name: Processing Ansible Oneprovider Start Tags
+  debug: msg="Processing Ansible Oneprovider Start Tags"
+  tags: oneprovider:start
+  register: oneprovider_start
+  when: tags_not_present is undefined
+
 - debug: msg="we gona oneprovider_install"
   tags: oneprovider, oneprovider:install
   when: (oneprovider_install.skipped is undefined) or
@@ -97,7 +104,6 @@
 - debug: msg="we gona oneprovider_restart"
   tags: oneprovider:restart
   when: oneprovider_restart.skipped is undefined
-
 
 - debug: msg='after oneprovider.install = {{ oneprovider.install }}, oneprovider_install={{ oneprovider_install }}; oneprovider.restart = {{ oneprovider.restart }}, oneprovider_restart={{ oneprovider_restart }}; oneprovider.install = {{ oneprovider.install }}, oneprovider_install={{ oneprovider_install }}; oneprovider.uninstall = {{ oneprovider.uninstall }}, oneprovider_uninstall={{ oneprovider_uninstall }}; oneprovider.configure = {{ oneprovider.configure }}, oneprovider_configure={{ oneprovider_configure }}'
   tags: always
@@ -148,6 +154,16 @@
   tags: oneprovider:stop
   when: oneprovider_stop.skipped is undefined
 
+- block:
+  - name: Processing Ansible Oneprovider Start Vars
+    set_fact:
+      oneprovider_start: true
+    changed_when: True
+    notify: "Oneprovider Start"
+  - meta: flush_handlers
+  tags: oneprovider:start
+  when: oneprovider_start.skipped is undefined
+
 # - debug: msg='after oneprovider.install = {{ oneprovider.install }}, oneprovider_install={{ oneprovider_install }}; oneprovider.restart = {{ oneprovider.restart }}, oneprovider_restart={{ oneprovider_restart }}; oneprovider.install = {{ oneprovider.install }}, oneprovider_install={{ oneprovider_install }}; oneprovider.uninstall = {{ oneprovider.uninstall }}, oneprovider_uninstall={{ oneprovider_uninstall }}; oneprovider.configure = {{ oneprovider.configure }}, oneprovider_configure={{ oneprovider_configure }}'
 #   tags: always
 
@@ -192,3 +208,10 @@
     verbosity: 1
   tags: oneprovider:stop
   when: oneprovider_stop == True
+
+- name: Checking For Oneprovider Start Flag
+  debug:
+    msg: "we gona oneprovider_start == True"
+    verbosity: 1
+  tags: oneprovider:start
+  when: oneprovider_start == True
