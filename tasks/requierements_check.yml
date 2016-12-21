@@ -4,8 +4,8 @@
 - name: "Check Minimal Hardware Requirements"
   assert:
     that:
-      - ansible_machine == "x86_64" 
-      - ansible_memtotal_mb|int > 1000 
+      - ansible_machine == "x86_64"
+      - ansible_memtotal_mb|int > 1000
       - ansible_processor_count|int > 1
     msg: "Minimal hardware requirements are 2VPCU and 1GB of RAM"
 
@@ -31,6 +31,7 @@
   assert:
     that:
       - "ipify_public_ip == public_ip_for_fqdn.stdout"
+  ignore_errors: yes
 
 # TODO: check if installation of 'nc' command is really needed on moder systems
 #- name: Installing netcat
@@ -38,7 +39,7 @@
 #    name: "netcat"
 #    state: present
 #    force: yes
-    
+
 # TODO: add checking UDP port 53, by default ansible only handles TCP ports
 - block:
   - name: "Check if all needed ports are free"

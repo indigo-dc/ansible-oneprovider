@@ -22,3 +22,16 @@
 #   when: ansible_distribution  == "Fedora"
 
 
+# If you use the same role, many times in your playbook its important
+# to reset those values to their default
+- name: Reseting Oneprovider Arguments
+  set_fact:
+    oneprovider_stop: false
+    oneprovider_requirements_check: false
+    oneprovider_install: false
+    oneprovider_configure: false
+    oneprovider_uninstall: false
+    oneprovider_restart: false
+    oneprovider_stop: false
+  tags: always
+
